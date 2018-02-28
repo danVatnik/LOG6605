@@ -6,29 +6,29 @@ mtype = {msg1, msg2, msg3, alice, bob, intruder,
 	signA, signB, signI, 
 	ok};
 
-typedef msg1 { /* the encrypted part of a message */
+typedef m1 { /* the encrypted part of a message */
   mtype sender, numVer, prefCrypt;
 }
 
-typedef msg2 { /* the encrypted part of a message */
-  mtype numVer, perfCrypt, key;
+typedef m2 { /* the encrypted part of a message */
+  mtype numVer, prefCrypt, key;
 }
 
-typedef msg3 { /* the encrypted part of a message */
+typedef m3 { /* the encrypted part of a message */
   mtype sessKey, key;
 }
 
 chan net1 = [0] of {mtype, /* msg# */
 	mtype, /* receiver */
-	ms1};
+	m1};
 
 chan net2 = [0] of {mtype, /* msg# */
 	mtype, /* receiver */
-	ms2};
+	m2};
 
 chan net3 = [0] of {mtype, /* msg# */
 	mtype, /* receiver */
-	ms3};
+	m3};
 
 /* The partners successfully identified (if any) by initiator
    and responder, used in correctness assertion.
@@ -40,14 +40,14 @@ mtype statusA, statusB;
 bool knowNA, knowNB;
 
 active proctype Alice() {
-	mtype partenerKey;
-	msg1 data1;
-	msg2 data2;
-	msg3 data3;
+	mtype partnerKey;
+	m1 data1;
+	m2 data2;
+	m3 data3;
 
 	if /* nondeterministically choose a partner for this run */
-  	:: partnerA = bob; partner_key = keyB;
-  	:: partnerA = intruder; partner_key = keyI;
+  	:: partnerA = bob; partnerKey = keyB;
+  	:: partnerA = intruder; partnerKey = keyI;
   fi;
 
 	d_step{
@@ -62,21 +62,42 @@ active proctype Alice() {
 
 	/* May need to set info in order to determine session key */
 	end_errA:
-		(data2.numVer == numVerB) && (data.prefCryp == perfCryptB)
+		(data2.numVer == numVerB) && (data2.prefCrypt == prefCryptB)
 	
-	partenerKey = data2.key;
+	partnerKey = data2.key;
 
 	/* May need to change in order to set session key */
 	d_step{
 		data3.sessKey = sessKeyAB;
-		data3.key = partenerKey;
+		data3.key = partnerKey;
 	}
 
-	net3 ! msg3(partnerA, data);
-	
+	net3 ! msg3(partnerA, data3);
+
   statusA = ok;
 }
 
 active proctype Bob(){
+	m1 data1;
+	m2 data2;
+	m3 data3;
 
+	net1 ? msg1(bob, data1);
+
+  partnerB = data1.sender;
+
+	d_step {
+    data2.numVer = numVerB;
+    data2.prefCrypt = prefCryptB;
+    data2.key = keyB;
+  }
+
+  net2 ! msg2(partnerB, data2);
+
+	net3 ? msg3(bob, data3);
+
+	/* SOme kind of error is possible not sure if needed */
+	end_errB2: 
+  	(data3.key == keyB) && (data3.sessKey == sessKeyAB);
+  statusB = ok;
 }
