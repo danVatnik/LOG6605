@@ -11,7 +11,7 @@ typedef m1 { /* the encrypted part of a message */
 }
 
 typedef m2 { /* the encrypted part of a message */
-  mtype numVer, prefCrypt, key;
+  mtype numVer, prefCrypt, sender, key;
 }
 
 typedef m3 { /* the encrypted part of a message */
@@ -33,14 +33,14 @@ chan net3 = [0] of {mtype, /* msg# */
 /* The partners successfully identified (if any) by initiator
    and responder, used in correctness assertion.
 */
-mtype partnerA, partnerB;
+mtype partnerA, partnerA2, partnerB;
 mtype statusA, statusB;
 
 /* Knowledge about nonces gained by the intruder. */
 bool knowSessKey;
 
 active proctype Alice() {
-	mtype partnerKey, sessionKey;
+	mtype partnerKey, sessionKey, intruderDetected;
 	m1 data1;
 	m2 data2;
 	m3 data3;
@@ -62,10 +62,17 @@ active proctype Alice() {
 	
 	partnerKey = data2.key;
 
+    partnerA2 = data2.sender;
+
+    if
+    :: partnerA != partnerA2 -> intruderDetected = true;
+    :: else -> intruderDetected = false;
+    fi;
+
 	/* Choose proper session key */
 	if
-		:: (partnerA == bob) -> sessionKey = sessKeyAB;
-		:: (partnerA == intruder) -> sessionKey = sessKeyAI;
+		:: (partnerA2 == bob) -> sessionKey = sessKeyAB;
+		:: (partnerA2 == intruder) -> sessionKey = sessKeyAI;
 	fi;
 
 	d_step{
@@ -73,7 +80,7 @@ active proctype Alice() {
 		data3.key = partnerKey;
 	}
 
-	net3 ! msg3(partnerA, data3);
+	net3 ! msg3(partnerA2, data3);
 
   statusA = ok;
 }
@@ -90,6 +97,7 @@ active proctype Bob(){
 	d_step {
     data2.numVer = numVerB;
     data2.prefCrypt = prefCryptB;
+    data2.sender = bob;
     data2.key = keyB;
   }
 
@@ -129,10 +137,8 @@ active proctype Intruder(){
 	::
 		if
 		:: msg_type == msg2 -> 
-			if
-			:: data2.key = intercepted2.key;
-			:: data2.key = keyI;
-			fi;
+			data2.key = intercepted2.key;
+            data2.sender = intercepted2.sender;
 			if
 			:: data2.numVer = intercepted2.numVer; data2.prefCrypt = intercepted2.prefCrypt;
 			:: data2.numVer = numVerI; data2.prefCrypt = prefCryptI;
@@ -166,6 +172,7 @@ active proctype Intruder(){
 				intercepted2.numVer = data2.numVer;
 				intercepted2.prefCrypt = data2.prefCrypt;
 				intercepted2.key = data2.key;
+                intercepted2.sender = data2.sender;
 				msg_type = msg2;
 			}
 		:: skip;
