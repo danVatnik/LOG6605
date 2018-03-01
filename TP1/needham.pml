@@ -136,72 +136,72 @@ active proctype Intruder() {
   :: /* Send msg1 to B (sending it to anybody else would be foolish).
         May use own identity or pretend to be A; send some nonce known to I.
      */
-     if /* either replay intercepted message or construct a fresh message */
-     :: icp_type == msg1 -> network ! msg1(bob, intercepted);
-     :: data.key = keyB;
-	if
-	:: data.d1 = alice;
-	:: data.d1 = intruder;
-	fi;
-	if
-	:: knowNA -> data.d2 = nonceA;
-	:: knowNB -> data.d2 = nonceB;
-	:: data.d2 = nonceI;
-	fi;
-        network ! msg1(bob, data);
-     fi;
+    if /* either replay intercepted message or construct a fresh message */
+    :: icp_type == msg1 -> network ! msg1(bob, intercepted);
+    :: data.key = keyB;
+      if
+      :: data.d1 = alice;
+      :: data.d1 = intruder;
+      fi;
+      if
+      :: knowNA -> data.d2 = nonceA;
+      :: knowNB -> data.d2 = nonceB;
+      :: data.d2 = nonceI;
+      fi;
+      network ! msg1(bob, data);
+    fi;
   :: /* Send msg2 to A. */
-     if
-     :: icp_type == msg2 -> network ! msg2(alice, intercepted);
-     :: data.key = keyA;
-        if
-	:: knowNA -> data.d1 = nonceA;
-	:: knowNB -> data.d1 = nonceB;
-	:: data.d1 = nonceI;
-	fi;
-	if
-	:: knowNA -> data.d2 = nonceA;
-	:: knowNB -> data.d2 = nonceB;
-	:: data.d2 = nonceI;
-	fi;
-        network ! msg2(alice, data);
-     fi;
+    if
+    :: icp_type == msg2 -> network ! msg2(alice, intercepted);
+    :: data.key = keyA;
+      if
+      :: knowNA -> data.d1 = nonceA;
+      :: knowNB -> data.d1 = nonceB;
+      :: data.d1 = nonceI;
+      fi;
+      if
+      :: knowNA -> data.d2 = nonceA;
+      :: knowNB -> data.d2 = nonceB;
+      :: data.d2 = nonceI;
+      fi;
+      network ! msg2(alice, data);
+    fi;
   :: /* Send msg3 to B. */
-     if
-     :: icp_type == msg2 -> network ! msg3(bob, intercepted);
-     :: data.key = keyB;
-	if
-	:: knowNA -> data.d1 = nonceA;
-	:: knowNB -> data.d1 = nonceB;
-	:: data.d1 = nonceI;
-	fi;
-        data.d2 = 0;
-        network ! msg3(bob, data);
-     fi;
+    if
+    :: icp_type == msg2 -> network ! msg3(bob, intercepted);
+    :: data.key = keyB;
+      if
+      :: knowNA -> data.d1 = nonceA;
+      :: knowNB -> data.d1 = nonceB;
+      :: data.d1 = nonceI;
+      fi;
+      data.d2 = 0;
+      network ! msg3(bob, data);
+    fi;
   :: /* Receive or intercept a message from A or B. If possible, extract nonces. */
-     network ? msg (_, data) ->
-     if /* Perhaps store the data field for later use */
-     :: d_step {
-	  intercepted.key = data.key; 
-	  intercepted.d1 = data.d1;
-	  intercepted.d2 = data.d2;
-          icp_type = msg;
-	}
-     :: skip;
-     fi;
-     d_step {
-	if /* Try to decrypt the message if possible */
-	:: (data.key == keyI) -> /* Have we learnt a new nonce? */
-	   if
-	   :: (data.d1 == nonceA || data.d2 == nonceA) -> knowNA = true;
-           :: else -> skip;
-	   fi;
-	   if
-	   :: (data.d1 == nonceB || data.d2 == nonceB) -> knowNB = true;
-	   :: else -> skip;
-	   fi;
-	:: else -> skip;
-	fi;
+    network ? msg (_, data) ->
+    if /* Perhaps store the data field for later use */
+    :: d_step {
+        intercepted.key = data.key; 
+        intercepted.d1 = data.d1;
+        intercepted.d2 = data.d2;
+        icp_type = msg;
+      }
+    :: skip;
+    fi;
+    d_step {
+      if /* Try to decrypt the message if possible */
+      :: (data.key == keyI) -> /* Have we learnt a new nonce? */
+        if
+        :: (data.d1 == nonceA || data.d2 == nonceA) -> knowNA = true;
+        :: else -> skip;
+        fi;
+        if
+        :: (data.d1 == nonceB || data.d2 == nonceB) -> knowNB = true;
+        :: else -> skip;
+        fi;
+      :: else -> skip;
+      fi;
      }
   od;
 }

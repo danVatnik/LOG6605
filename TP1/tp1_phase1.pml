@@ -37,17 +37,17 @@ mtype partnerA, partnerB;
 mtype statusA, statusB;
 
 /* Knowledge about nonces gained by the intruder. */
-bool knowNA, knowNB;
+bool knowSessKey;
 
 active proctype Alice() {
-	mtype partnerKey;
+	mtype partnerKey, sessionKey;
 	m1 data1;
 	m2 data2;
 	m3 data3;
 
 	if /* nondeterministically choose a partner for this run */
-  	:: partnerA = bob; partnerKey = keyB;
-  	:: partnerA = intruder; partnerKey = keyI;
+  	:: partnerA = bob;
+  	:: partnerA = intruder;
   fi;
 
 	d_step{
@@ -59,18 +59,17 @@ active proctype Alice() {
 	net1 ! msg1(partnerA, data1);
 
 	net2 ? msg2(alice, data2);	
-
-	/* CHeck if key form B or I */
-	end_errA:
-		(data2.numVer == numVerB) && (data2.prefCrypt == prefCryptB)
 	
 	partnerKey = data2.key;
 
 	/* Choose proper session key */
+	if
+		:: (partnerA == bob) -> sessionKey = sessKeyAB;
+		:: (partnerA == intruder) -> sessionKey = sessKeyAI;
+	fi;
 
-	/* May need to change in order to set session key */
 	d_step{
-		data3.sessKey = sessKeyAB;
+		data3.sessKey = sessionKey;
 		data3.key = partnerKey;
 	}
 
@@ -98,16 +97,92 @@ active proctype Bob(){
 
 	net3 ? msg3(bob, data3);
 
-	/* Some kind of error is possible not sure if needed */
 	end_errB2: 
-  	(data3.key == keyB);
+  	(data3.key == keyB) && (data3.sessKey == sessKeyAB);
 
   statusB = ok;
 }
 
 active proctype Intruder(){
 
+	mtype msg, msg_type;
+	m1 data1, intercepted1;
+	m2 data2, intercepted2;
+	m3 data3, intercepted3;
 	/* peut initier, intercepter, renvoyer (modifier ce qu'il peut) */
 	/* know session id */
 
+	do
+	::
+		if
+		:: msg_type == msg1 -> 
+			if
+			:: data1.sender = alice;
+			:: data1.sender = intruder;
+			fi;
+			if
+			:: data1.numVer = intercepted1.numVer; data1.prefCrypt = intercepted1.prefCrypt;
+			:: data1.numVer = numVerI; data1.prefCrypt = prefCryptI;
+			fi;
+			net1 ! msg1(bob, data1);
+		fi;
+	::
+		if
+		:: msg_type == msg2 -> 
+			if
+			:: data2.key = intercepted2.key;
+			:: data2.key = keyI;
+			fi;
+			if
+			:: data2.numVer = intercepted2.numVer; data2.prefCrypt = intercepted2.prefCrypt;
+			:: data2.numVer = numVerI; data2.prefCrypt = prefCryptI;
+			fi;
+			net2 ! msg2(alice, data2);
+		fi;
+	::
+		if
+		:: msg_type == msg3 -> 
+			if
+			:: (knowSessKey) -> data3.sessKey = intercepted3.sessKey; data3.key = keyB;
+			:: else -> skip;
+			fi;
+			net3 ! msg3(bob, data3);
+		fi;
+	::
+		net1 ? msg1(intruder, data1) ->
+		if
+		:: d_step{
+				intercepted1.sender = data1.sender;
+				intercepted1.numVer = data1.numVer;
+				intercepted1.prefCrypt = data1.prefCrypt;
+				msg_type = msg1;
+			}
+		:: skip;
+		fi;
+	::
+		net2 ? msg2(intruder, data2) ->
+		if
+		:: d_step{
+				intercepted2.numVer = data2.numVer;
+				intercepted2.prefCrypt = data2.prefCrypt;
+				intercepted2.key = data2.key;
+				msg_type = msg2;
+			}
+		:: skip;
+		fi;
+	::
+		net3 ? msg3(intruder, data3) ->
+		if
+		:: d_step{
+				if
+				:: (data3.key == keyI) -> knowSessKey = true;
+				fi;
+				intercepted3.sessKey = data3.sessKey;
+				intercepted3.key = data3.key;
+				msg_type = msg3;
+			}
+		:: skip;
+		fi;
+
+	od;
 }
