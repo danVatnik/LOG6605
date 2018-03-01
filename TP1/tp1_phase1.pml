@@ -60,11 +60,13 @@ active proctype Alice() {
 
 	net2 ? msg2(alice, data2);	
 
-	/* May need to set info in order to determine session key */
+	/* CHeck if key form B or I */
 	end_errA:
 		(data2.numVer == numVerB) && (data2.prefCrypt == prefCryptB)
 	
 	partnerKey = data2.key;
+
+	/* Choose proper session key */
 
 	/* May need to change in order to set session key */
 	d_step{
@@ -96,8 +98,16 @@ active proctype Bob(){
 
 	net3 ? msg3(bob, data3);
 
-	/* SOme kind of error is possible not sure if needed */
+	/* Some kind of error is possible not sure if needed */
 	end_errB2: 
-  	(data3.key == keyB) && (data3.sessKey == sessKeyAB);
+  	(data3.key == keyB);
+
   statusB = ok;
+}
+
+active proctype Intruder(){
+
+	/* peut initier, intercepter, renvoyer (modifier ce qu'il peut) */
+	/* know session id */
+
 }
