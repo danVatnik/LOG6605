@@ -1,0 +1,9 @@
+never p1 {    /* !([] (! (knowSessKey))) */
+T0_init:
+	do
+	:: atomic { (! ((! (knowSessKey)))) -> assert(!(! ((! (knowSessKey))))) }
+	:: (1) -> goto T0_init
+	od;
+accept_all:
+	skip
+}

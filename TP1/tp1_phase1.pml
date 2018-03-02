@@ -186,3 +186,5 @@ active proctype Intruder(){
 
 	od;
 }
+
+ltl p1 {[]!knowSessKey}
