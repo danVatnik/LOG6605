@@ -48,7 +48,7 @@ active proctype Alice() {
 	if /* nondeterministically choose a partner for this run */
   	:: partnerA = bob;
   	:: partnerA = intruder;
-  fi;
+  	fi;
 
 	d_step{
 		data1.sender = alice;

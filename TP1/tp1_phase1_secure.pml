@@ -38,6 +38,7 @@ mtype statusA, statusB;
 
 /* Knowledge about nonces gained by the intruder. */
 bool knowSessKey;
+bool secretSender = true;
 
 active proctype Alice() {
 	mtype partnerKey, sessionKey, intruderDetected;
@@ -107,6 +108,12 @@ active proctype Bob(){
 
 	end_errB2: 
   	(data3.key == keyB);
+
+	if
+	:: (partnerB == alice && data3.sessKey == sessKeyAB) -> secretSender = true;
+	:: (partnerB == intruder && data3.sessKey == sessKeyIB) -> secretSender = true;
+	:: else -> secretSender = false;
+	fi;
 
   statusB = ok;
 }
@@ -193,3 +200,5 @@ active proctype Intruder(){
 
 	od;
 }
+
+ltl p1 {[]secretSender}
