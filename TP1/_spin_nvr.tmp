@@ -1,7 +1,7 @@
-never p1 {    /* !([] ((! ((partnerA==bob))) || (sessKeyValid))) */
+never p1 {    /* !([] (! (gotSessKey))) */
 T0_init:
 	do
-	:: atomic { (! (((! ((partnerA==bob))) || (sessKeyValid)))) -> assert(!(! (((! ((partnerA==bob))) || (sessKeyValid))))) }
+	:: atomic { (! ((! (gotSessKey)))) -> assert(!(! ((! (gotSessKey))))) }
 	:: (1) -> goto T0_init
 	od;
 accept_all:

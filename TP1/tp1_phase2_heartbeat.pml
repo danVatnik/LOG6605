@@ -28,7 +28,7 @@ bool gotExtraVal = false;
 bool sessKeyValid = true;
 
 mtype partnerA, partnerB, partnerI;
-mtype statusA, statusB, statusI ;
+mtype statusA, statusB, statusI;
 
 active proctype Alice() {
     m1 data1;

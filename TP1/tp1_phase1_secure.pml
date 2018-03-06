@@ -49,7 +49,7 @@ active proctype Alice() {
 	if /* nondeterministically choose a partner for this run */
   	:: partnerA = bob;
   	:: partnerA = intruder;
-  fi;
+  	fi;
 
 	d_step{
 		data1.sender = alice;
@@ -106,7 +106,7 @@ active proctype Bob(){
 
 	net3 ? msg3(bob, data3);
 
-	end_errB2: 
+	end_errB: 
   	(data3.key == keyB);
 
 	if
