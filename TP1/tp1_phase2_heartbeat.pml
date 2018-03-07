@@ -135,8 +135,7 @@ active proctype Intruder() {
     :: (data2.sessKey == sessKey) -> sessKeyValid = true;
     :: else -> sessKeyValid = false;
     fi;
-
     statusI = ok;
 }
 
-ltl p1{ [](partnerA == bob -> sessKeyValid)}
+ltl p1{ []((partnerA == bob || partnerI == bob) -> sessKeyValid)}

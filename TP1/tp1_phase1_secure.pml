@@ -124,8 +124,6 @@ active proctype Intruder(){
 	m1 data1, intercepted1;
 	m2 data2, intercepted2;
 	m3 data3, intercepted3;
-	/* peut initier, intercepter, renvoyer (modifier ce qu'il peut) */
-	/* know session id */
 
 	do
 	::
