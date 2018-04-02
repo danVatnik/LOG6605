@@ -3,14 +3,17 @@ dtmc
 
 const double m = 6;
 const double pf = 3/4;
+const int a = 1;
 
 module crowds
 
-	// local state
+	// initiator node
 	s : [1..7] init 1;
-	e : [1..7] init 1;
+
+	// relay node
+	e : [0..7] init 0;
 	
-	// value of the die
+	// value of the observation
 	d : [0..4] init 0;
 
 	[]s=1 -> 1/m : (e'=1) & (s'=7) + 1/m : (e'=2)  & (s'=7) + 1/m : (e'=3)  & (s'=7) + 1/m : (e'=4)  & (s'=7) + 1/m : (e'=5) & (d'=1) & (s'=7) + 1/m : (e'=6) & (d'=1) & (s'=7);

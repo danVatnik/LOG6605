@@ -7,23 +7,29 @@ const double pf = 3/4;
 const double p1 = 9/10;
 const double p2 = 9/10;
 
+const int a = 3;
+
 module crowds
 
-	// local state
-	s : [1..7] init 1;
-	e : [1..7] init 1;
+	// initiator node
+	s : [1..7] init 3;
+
+	// relay node
+	e : [0..7] init 0;
+
+	// destination variables
 	destChoice : [0..3] init 0;
 	dest : [0..2] init 0;
 
-	// value of the die
+	// value of the observation
 	d : [0..5] init 0;
 	discoveredDest : [0..2] init 0;
 	
 	[]s=1 -> 1/m : (e'=1) & (s'=7) & (destChoice'=1) + 1/m : (e'=2)  & (s'=7) & (destChoice'=1) + 1/m : (e'=3)  & (s'=7) & (destChoice'=1) + 1/m : (e'=4)  & (s'=7) & (destChoice'=1) + 1/m : (e'=5) & (s'=7) & (destChoice'=1) + 1/m : (e'=6) & (d'=1) & (s'=7) & (destChoice'=1);
-	[]s=2 -> 1/m : (e'=1) & (s'=7) & (destChoice'=1) + 1/m : (e'=2)  & (s'=7) & (destChoice'=1) + 1/m : (e'=3)  & (s'=7) & (destChoice'=1) + 1/m : (e'=4)  & (s'=7) & (destChoice'=1) + 1/m : (e'=5) & (s'=7) & (destChoice'=1) + 1/m : (e'=6) & (d'=1) & (s'=7) & (destChoice'=1);
-	[]s=3 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=1) & (s'=7) & (destChoice'=2);
-	[]s=4 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=1) & (s'=7) & (destChoice'=2);
-	[]s=5 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=1) & (s'=7) & (destChoice'=2);
+	[]s=2 -> 1/m : (e'=1) & (s'=7) & (destChoice'=1) + 1/m : (e'=2)  & (s'=7) & (destChoice'=1) + 1/m : (e'=3)  & (s'=7) & (destChoice'=1) + 1/m : (e'=4)  & (s'=7) & (destChoice'=1) + 1/m : (e'=5) & (s'=7) & (destChoice'=1) + 1/m : (e'=6) & (d'=2) & (s'=7) & (destChoice'=1);
+	[]s=3 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=3) & (s'=7) & (destChoice'=2);
+	[]s=4 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=4) & (s'=7) & (destChoice'=2);
+	[]s=5 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=5) & (s'=7) & (destChoice'=2);
 	
 	[]destChoice=1 -> p1 : (dest' = 1) & (destChoice'=3) + (1- p1) : (dest' = 2) & (destChoice'=3) ;
 	[]destChoice=2 -> p2 : (dest' = 2) & (destChoice'=3) + (1- p1) : (dest' = 1) & (destChoice'=3) ;
