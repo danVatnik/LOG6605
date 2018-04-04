@@ -1,18 +1,23 @@
 dtmc
 
-
+// number of nodes
 const double m = 6;
+// number of honnest nodes
+const double n = 5;
+// Pr to send to server
 const double pf = 3/4;
 
+// server choice Pr.
 const double p1 = 9/10;
 const double p2 = 9/10;
 
-const int a = 3;
-
 module crowds
+	
+	// initial state that uniformly chooses initiator node
+	i : [0..5] init 0;
 
 	// initiator node
-	s : [1..7] init 3;
+	s : [0..7] init 0;
 
 	// relay node
 	e : [0..7] init 0;
@@ -25,15 +30,21 @@ module crowds
 	d : [0..5] init 0;
 	discoveredDest : [0..2] init 0;
 	
-	[]s=1 -> 1/m : (e'=1) & (s'=7) & (destChoice'=1) + 1/m : (e'=2)  & (s'=7) & (destChoice'=1) + 1/m : (e'=3)  & (s'=7) & (destChoice'=1) + 1/m : (e'=4)  & (s'=7) & (destChoice'=1) + 1/m : (e'=5) & (s'=7) & (destChoice'=1) + 1/m : (e'=6) & (d'=1) & (s'=7) & (destChoice'=1);
-	[]s=2 -> 1/m : (e'=1) & (s'=7) & (destChoice'=1) + 1/m : (e'=2)  & (s'=7) & (destChoice'=1) + 1/m : (e'=3)  & (s'=7) & (destChoice'=1) + 1/m : (e'=4)  & (s'=7) & (destChoice'=1) + 1/m : (e'=5) & (s'=7) & (destChoice'=1) + 1/m : (e'=6) & (d'=2) & (s'=7) & (destChoice'=1);
-	[]s=3 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=3) & (s'=7) & (destChoice'=2);
-	[]s=4 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=4) & (s'=7) & (destChoice'=2);
-	[]s=5 -> 1/m : (e'=1) & (s'=7) & (destChoice'=2) + 1/m : (e'=2)  & (s'=7) & (destChoice'=2) + 1/m : (e'=3)  & (s'=7) & (destChoice'=2) + 1/m : (e'=4)  & (s'=7) & (destChoice'=2) + 1/m : (e'=5) & (s'=7) & (destChoice'=2) + 1/m : (e'=6) & (d'=5) & (s'=7) & (destChoice'=2);
+	// choose initiator node with Pr: 1/n
+	[]i=0 -> 1/n : (s'=1) & (i'=1) & (destChoice'=1) + 1/n : (s'=2) & (i'=2) & (destChoice'=1)  + 1/n : (s'=3) & (i'=3) & (destChoice'=2) + 1/n : (s'=4) & (i'=4) & (destChoice'=2) + 1/n : (s'=5) & (i'=5) & (destChoice'=2) ;
 	
+	// initiator node sends message to any other node
+	[]s=1 -> 1/m : (e'=1) & (s'=7) + 1/m : (e'=2)  & (s'=7) + 1/m : (e'=3)  & (s'=7) + 1/m : (e'=4)  & (s'=7) + 1/m : (e'=5) & (s'=7) + 1/m : (e'=6) & (d'=1) & (s'=7);
+	[]s=2 -> 1/m : (e'=1) & (s'=7) + 1/m : (e'=2)  & (s'=7) + 1/m : (e'=3)  & (s'=7) + 1/m : (e'=4)  & (s'=7) + 1/m : (e'=5) & (s'=7) + 1/m : (e'=6) & (d'=2) & (s'=7);
+	[]s=3 -> 1/m : (e'=1) & (s'=7) + 1/m : (e'=2)  & (s'=7) + 1/m : (e'=3)  & (s'=7) + 1/m : (e'=4)  & (s'=7) + 1/m : (e'=5) & (s'=7) + 1/m : (e'=6) & (d'=3) & (s'=7);
+	[]s=4 -> 1/m : (e'=1) & (s'=7) + 1/m : (e'=2)  & (s'=7) + 1/m : (e'=3)  & (s'=7) + 1/m : (e'=4)  & (s'=7) + 1/m : (e'=5) & (s'=7) + 1/m : (e'=6) & (d'=4) & (s'=7);
+	[]s=5 -> 1/m : (e'=1) & (s'=7) + 1/m : (e'=2)  & (s'=7) + 1/m : (e'=3)  & (s'=7) + 1/m : (e'=4)  & (s'=7) + 1/m : (e'=5) & (s'=7) + 1/m : (e'=6) & (d'=5) & (s'=7);
+	
+	// choose destination
 	[]destChoice=1 -> p1 : (dest' = 1) & (destChoice'=3) + (1- p1) : (dest' = 2) & (destChoice'=3) ;
 	[]destChoice=2 -> p2 : (dest' = 2) & (destChoice'=3) + (1- p1) : (dest' = 1) & (destChoice'=3) ;
-
+	
+	// relay node sends message to server or to another relay node
 	[]e=1 -> (1 - pf) : (e'=7) + pf/m : (e'=1) + pf/m : (e'=2) + pf/m : (e'=3) + pf/m : (e'=4) + pf/m : (e'=5) + pf/m : (e'=6) & (d'=1) & (discoveredDest'=dest);
 	[]e=2 -> (1 - pf) : (e'=7) + pf/m : (e'=1) + pf/m : (e'=2) + pf/m : (e'=3) + pf/m : (e'=4) + pf/m : (e'=5) + pf/m : (e'=6) & (d'=2) & (discoveredDest'=dest);
 	[]e=3 -> (1 - pf) : (e'=7) + pf/m : (e'=1) + pf/m : (e'=2) + pf/m : (e'=3) + pf/m : (e'=4) + pf/m : (e'=5) + pf/m : (e'=6) & (d'=3) & (discoveredDest'=dest);
